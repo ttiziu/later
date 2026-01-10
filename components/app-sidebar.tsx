@@ -28,12 +28,6 @@ import {
   SidebarRail,
 } from "@/components/animate-ui/components/radix/sidebar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Menu,
   MenuTrigger,
   MenuPanel,
@@ -85,24 +79,26 @@ export function AppSidebar() {
                     <item.icon className="size-4" />
                     <span>{item.title}</span>
                   </SidebarMenuButton>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <SidebarMenuAction showOnHover>
-                        <MoreHorizontal className="size-4" />
-                        <span className="sr-only">More options</span>
-                      </SidebarMenuAction>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent side="right" align="start">
-                      <DropdownMenuItem>
+                  <Menu>
+                    <MenuTrigger
+                      render={
+                        <SidebarMenuAction showOnHover>
+                          <MoreHorizontal className="size-4" />
+                          <span className="sr-only">More options</span>
+                        </SidebarMenuAction>
+                      }
+                    />
+                    <MenuPanel className="w-40" side="right" align="start" sideOffset={8}>
+                      <MenuItem>
                         <Pencil className="size-4" />
-                        <span>Edit</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive focus:text-destructive">
+                        Edit
+                      </MenuItem>
+                      <MenuItem variant="destructive">
                         <Trash2 className="size-4" />
-                        <span>Delete</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        Delete
+                      </MenuItem>
+                    </MenuPanel>
+                  </Menu>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -118,13 +114,13 @@ export function AppSidebar() {
                 render={
                   <SidebarMenuButton tooltip="Settings">
                     <Settings className="size-4" />
-                    <span>Settings</span>
+                    <span>Configuración</span>
                   </SidebarMenuButton>
                 }
               />
               <MenuPanel className="w-56" side="top" align="start" sideOffset={8}>
                 <MenuGroup>
-                  <MenuGroupLabel>My Account</MenuGroupLabel>
+                  <MenuGroupLabel>Ajustes</MenuGroupLabel>
                   <MenuItem>
                     <User className="size-4" />
                     Profile
@@ -144,7 +140,11 @@ export function AppSidebar() {
 
                 <MenuSeparator />
 
-                <MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    window.open("https://github.com/ttiziu/later", "_blank", "noopener,noreferrer");
+                  }}
+                >
                   <Github className="size-4" />
                   GitHub
                 </MenuItem>
