@@ -31,13 +31,13 @@ export default function Home() {
               size="sm"
               modes={["light", "dark", "system"]}
             />
-          </div>
+        </div>
         </header>
         <main className="flex-1 p-6">
           <div className="flex h-full items-center justify-center text-muted-foreground">
             <p className="text-sm">Your tasks will appear here</p>
-          </div>
-        </main>
+        </div>
+      </main>
       </SidebarInset>
     </SidebarProvider>
   );

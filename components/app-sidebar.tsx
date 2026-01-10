@@ -1,6 +1,19 @@
 "use client";
 
-import { ListTodo, Settings, Inbox, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  ListTodo,
+  Settings,
+  Inbox,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  User,
+  Keyboard,
+  Moon,
+  LogOut,
+  Github,
+  HelpCircle,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +33,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Menu,
+  MenuTrigger,
+  MenuPanel,
+  MenuGroup,
+  MenuGroupLabel,
+  MenuItem,
+  MenuSeparator,
+  MenuShortcut,
+} from "@/components/animate-ui/components/base/menu";
 
 const navigation = [
   {
@@ -71,11 +94,11 @@ export function AppSidebar() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent side="right" align="start">
                       <DropdownMenuItem>
-                        <Pencil className="mr-2 size-4" />
+                        <Pencil className="size-4" />
                         <span>Edit</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem className="text-destructive focus:text-destructive">
-                        <Trash2 className="mr-2 size-4" />
+                        <Trash2 className="size-4" />
                         <span>Delete</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -90,10 +113,55 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Settings">
-              <Settings className="size-4" />
-              <span>Settings</span>
-            </SidebarMenuButton>
+            <Menu>
+              <MenuTrigger
+                render={
+                  <SidebarMenuButton tooltip="Settings">
+                    <Settings className="size-4" />
+                    <span>Settings</span>
+                  </SidebarMenuButton>
+                }
+              />
+              <MenuPanel className="w-56" side="top" align="start" sideOffset={8}>
+                <MenuGroup>
+                  <MenuGroupLabel>My Account</MenuGroupLabel>
+                  <MenuItem>
+                    <User className="size-4" />
+                    Profile
+                    <MenuShortcut>⇧⌘P</MenuShortcut>
+                  </MenuItem>
+                  <MenuItem>
+                    <Moon className="size-4" />
+                    Appearance
+                    <MenuShortcut>⌘T</MenuShortcut>
+                  </MenuItem>
+                  <MenuItem>
+                    <Keyboard className="size-4" />
+                    Keyboard shortcuts
+                    <MenuShortcut>⌘K</MenuShortcut>
+                  </MenuItem>
+                </MenuGroup>
+
+                <MenuSeparator />
+
+                <MenuItem>
+                  <Github className="size-4" />
+                  GitHub
+                </MenuItem>
+                <MenuItem>
+                  <HelpCircle className="size-4" />
+                  Support
+                </MenuItem>
+
+                <MenuSeparator />
+
+                <MenuItem variant="destructive">
+                  <LogOut className="size-4" />
+                  Log out
+                  <MenuShortcut>⇧⌘Q</MenuShortcut>
+                </MenuItem>
+              </MenuPanel>
+            </Menu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
