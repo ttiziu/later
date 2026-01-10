@@ -1,4 +1,4 @@
-export { Button, buttonVariants, type ButtonProps } from "./button";
-export { Input, type InputProps } from "./input";
+export { Button, buttonVariants } from "./button";
+export { Input } from "./input";
 export { Separator } from "./separator";
 export { Skeleton } from "./skeleton";
