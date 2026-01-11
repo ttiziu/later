@@ -22,24 +22,6 @@ Aplicación minimalista de gestión de tareas construida con Next.js y TypeScrip
 - **Componentes UI:** Radix UI, Base UI
 - **Temas:** next-themes
 
-## Empezar
-
-```bash
-# Instalar dependencias
-npm install
-
-# Ejecutar servidor de desarrollo
-npm run dev
-
-# Compilar para producción
-npm run build
-
-# Iniciar servidor de producción
-npm start
-```
-
-Abre [http://localhost:3000](http://localhost:3000) para ver la aplicación.
-
 ## Licencia
 
 MIT © 2026 Jherry Paolo Visalot Girón
