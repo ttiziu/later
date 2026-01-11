@@ -17,6 +17,8 @@ import {
   getTodosByListId,
   getLists,
   toggleTodo,
+  moveTodoToList,
+  reorderTodo,
   type Todo,
   type TaskList as TaskListType,
 } from "@/lib/storage";
@@ -96,6 +98,31 @@ export default function Home() {
     setTodos((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const handleMoveToList = (todoId: string, newListId: string) => {
+    const moved = moveTodoToList(todoId, newListId);
+    if (moved) {
+      // If moved to a different list, remove from current todos
+      if (newListId !== selectedListId) {
+        setTodos((prev) => prev.filter((t) => t.id !== todoId));
+      }
+      // Refresh todos to reflect any changes
+      if (selectedListId) {
+        const listTodos = getTodosByListId(selectedListId);
+        setTodos(listTodos);
+      }
+    }
+  };
+
+  const handleReorder = (todoId: string, direction: "up" | "down") => {
+    if (!selectedListId) return;
+    const success = reorderTodo(todoId, selectedListId, direction);
+    if (success) {
+      // Refresh todos to reflect new order
+      const listTodos = getTodosByListId(selectedListId);
+      setTodos(listTodos);
+    }
+  };
+
   return (
     <SidebarProvider>
       <AppSidebar
@@ -136,7 +163,15 @@ export default function Home() {
               <ScrollArea className="h-full">
                 <div className="p-6 pb-32">
                   <div className="mx-auto max-w-2xl">
-                    <TaskList todos={todos} onToggle={handleToggle} onDelete={handleDelete} />
+                    <TaskList
+                      todos={todos}
+                      lists={lists}
+                      currentListId={selectedListId || ""}
+                      onToggle={handleToggle}
+                      onDelete={handleDelete}
+                      onMoveToList={handleMoveToList}
+                      onReorder={handleReorder}
+                    />
                   </div>
                 </div>
               </ScrollArea>

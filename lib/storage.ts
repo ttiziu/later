@@ -262,3 +262,58 @@ export function clearCompleted(listId: string): number {
 
   return cleared;
 }
+
+/**
+ * Move a todo to a different list
+ */
+export function moveTodoToList(todoId: string, newListId: string): Todo | null {
+  const todos = getTodos();
+  const index = todos.findIndex((t) => t.id === todoId);
+
+  if (index === -1) return null;
+
+  todos[index] = {
+    ...todos[index],
+    listId: newListId,
+  };
+
+  saveTodos(todos);
+  return todos[index];
+}
+
+/**
+ * Reorder a todo within its list (move up or down)
+ * This preserves the current order and swaps positions
+ */
+export function reorderTodo(todoId: string, listId: string, direction: "up" | "down"): boolean {
+  const todos = getTodos();
+  const listTodos = todos.filter((t) => t.listId === listId);
+  
+  // Sort by creation time (newest first, as addTodo adds to the beginning)
+  listTodos.sort((a, b) => b.createdAt - a.createdAt);
+  
+  const currentIndex = listTodos.findIndex((t) => t.id === todoId);
+  
+  if (
+    currentIndex === -1 ||
+    (direction === "up" && currentIndex === 0) ||
+    (direction === "down" && currentIndex === listTodos.length - 1)
+  ) {
+    return false; // Already at boundary or not found
+  }
+
+  const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+  const currentTodo = listTodos[currentIndex];
+  const targetTodo = listTodos[newIndex];
+
+  // Swap creation times to change order
+  const tempCreatedAt = currentTodo.createdAt;
+  const currentIndexInAll = todos.findIndex((t) => t.id === currentTodo.id);
+  const targetIndexInAll = todos.findIndex((t) => t.id === targetTodo.id);
+
+  todos[currentIndexInAll] = { ...currentTodo, createdAt: targetTodo.createdAt };
+  todos[targetIndexInAll] = { ...targetTodo, createdAt: tempCreatedAt };
+
+  saveTodos(todos);
+  return true;
+}
