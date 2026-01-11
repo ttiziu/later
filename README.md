@@ -1,45 +1,45 @@
-# Later
+# ✓ Later
 
-A minimal task management app built with Next.js and TypeScript.
+Aplicación minimalista de gestión de tareas construida con Next.js y TypeScript.
 
-## Features
+## Características
 
-- Multiple task lists
-- Task completion with animated strikethrough
-- Inline list editing
-- Move tasks between lists
-- Reorder tasks within lists
-- Dark/Light theme
-- LocalStorage persistence
-- Responsive design
+- Múltiples listas de tareas
+- Completado de tareas con animación de tachado
+- Edición inline de listas
+- Mover tareas entre listas
+- Reordenar tareas dentro de listas
+- Tema oscuro/claro
+- Persistencia en LocalStorage
+- Diseño responsive
 
-## Tech Stack
+## Stack Tecnológico
 
 - **Framework:** Next.js 16
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **Animations:** Motion (Framer Motion)
-- **UI Components:** Radix UI, Base UI
-- **Theming:** next-themes
+- **Lenguaje:** TypeScript
+- **Estilos:** Tailwind CSS
+- **Animaciones:** Motion (Framer Motion)
+- **Componentes UI:** Radix UI, Base UI
+- **Temas:** next-themes
 
-## Getting Started
+## Empezar
 
 ```bash
-# Install dependencies
+# Instalar dependencias
 npm install
 
-# Run development server
+# Ejecutar servidor de desarrollo
 npm run dev
 
-# Build for production
+# Compilar para producción
 npm run build
 
-# Start production server
+# Iniciar servidor de producción
 npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the app.
+Abre [http://localhost:3000](http://localhost:3000) para ver la aplicación.
 
-## License
+## Licencia
 
 MIT © 2026 Jherry Paolo Visalot Girón
