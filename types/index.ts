@@ -9,3 +9,17 @@ export interface ApiResponse<T> {
   message?: string;
   success: boolean;
 }
+
+export interface TaskList {
+  id: string;
+  name: string;
+  createdAt: number;
+}
+
+export interface Todo {
+  id: string;
+  listId: string;
+  text: string;
+  completed: boolean;
+  createdAt: number;
+}

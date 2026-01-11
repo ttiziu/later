@@ -3,22 +3,14 @@
  * Simple, type-safe, and extensible
  */
 
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface Todo {
-  id: string;
-  text: string;
-  completed: boolean;
-  createdAt: number;
-}
+import type { Todo, TaskList } from "@/types";
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const STORAGE_KEY = "later-todos";
+const LISTS_STORAGE_KEY = "later-lists";
+const TODOS_STORAGE_KEY = "later-todos";
 
 // ============================================================================
 // Helpers
@@ -33,7 +25,104 @@ function isClient(): boolean {
 }
 
 // ============================================================================
-// Storage Operations
+// Lists Storage Operations
+// ============================================================================
+
+/**
+ * Get all task lists
+ */
+export function getLists(): TaskList[] {
+  if (!isClient()) return [];
+
+  try {
+    const stored = localStorage.getItem(LISTS_STORAGE_KEY);
+    const lists = stored ? JSON.parse(stored) : [];
+    
+    // If no lists exist, create a default "Inbox" list
+    if (lists.length === 0) {
+      const defaultList: TaskList = {
+        id: generateId(),
+        name: "Inbox",
+        createdAt: Date.now(),
+      };
+      saveLists([defaultList]);
+      return [defaultList];
+    }
+    
+    return lists;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Save lists to localStorage
+ */
+function saveLists(lists: TaskList[]): void {
+  if (!isClient()) return;
+
+  try {
+    localStorage.setItem(LISTS_STORAGE_KEY, JSON.stringify(lists));
+  } catch {
+    console.error("Failed to save lists to localStorage");
+  }
+}
+
+/**
+ * Create a new task list
+ */
+export function createList(name: string): TaskList {
+  const list: TaskList = {
+    id: generateId(),
+    name: name.trim() || "New List",
+    createdAt: Date.now(),
+  };
+
+  const lists = getLists();
+  saveLists([...lists, list]);
+
+  return list;
+}
+
+/**
+ * Update list name
+ */
+export function updateList(id: string, name: string): TaskList | null {
+  const lists = getLists();
+  const index = lists.findIndex((l) => l.id === id);
+
+  if (index === -1) return null;
+
+  lists[index] = {
+    ...lists[index],
+    name: name.trim() || lists[index].name,
+  };
+
+  saveLists(lists);
+  return lists[index];
+}
+
+/**
+ * Delete a list and all its todos
+ */
+export function deleteList(id: string): boolean {
+  const lists = getLists();
+  const filtered = lists.filter((l) => l.id !== id);
+
+  if (filtered.length === lists.length) return false;
+
+  saveLists(filtered);
+  
+  // Delete all todos from this list
+  const todos = getTodos();
+  const remainingTodos = todos.filter((t) => t.listId !== id);
+  saveTodos(remainingTodos);
+
+  return true;
+}
+
+// ============================================================================
+// Todos Storage Operations
 // ============================================================================
 
 /**
@@ -43,11 +132,18 @@ export function getTodos(): Todo[] {
   if (!isClient()) return [];
 
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(TODOS_STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
   }
+}
+
+/**
+ * Get todos for a specific list
+ */
+export function getTodosByListId(listId: string): Todo[] {
+  return getTodos().filter((t) => t.listId === listId);
 }
 
 /**
@@ -57,18 +153,19 @@ function saveTodos(todos: Todo[]): void {
   if (!isClient()) return;
 
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+    localStorage.setItem(TODOS_STORAGE_KEY, JSON.stringify(todos));
   } catch {
     console.error("Failed to save todos to localStorage");
   }
 }
 
 /**
- * Add a new todo
+ * Add a new todo to a list
  */
-export function addTodo(text: string): Todo {
+export function addTodo(listId: string, text: string): Todo {
   const todo: Todo = {
     id: generateId(),
+    listId,
     text: text.trim(),
     completed: false,
     createdAt: Date.now(),
@@ -130,13 +227,16 @@ export function updateTodo(id: string, text: string): Todo | null {
 }
 
 /**
- * Clear all completed todos
+ * Clear all completed todos from a list
  */
-export function clearCompleted(): number {
+export function clearCompleted(listId: string): number {
   const todos = getTodos();
-  const active = todos.filter((t) => !t.completed);
-  const cleared = todos.length - active.length;
+  const listTodos = todos.filter((t) => t.listId === listId);
+  const active = listTodos.filter((t) => !t.completed);
+  const cleared = listTodos.length - active.length;
 
-  saveTodos(active);
+  const remaining = todos.filter((t) => t.listId !== listId || !t.completed);
+  saveTodos(remaining);
+
   return cleared;
 }

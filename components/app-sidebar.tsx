@@ -1,11 +1,8 @@
 "use client";
 
 import {
-  ListTodo,
   Settings,
-  Inbox,
   MoreHorizontal,
-  Pencil,
   Trash2,
   User,
   Keyboard,
@@ -13,6 +10,8 @@ import {
   LogOut,
   Github,
   HelpCircle,
+  Plus,
+  ListTodo,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,21 +36,57 @@ import {
   MenuSeparator,
   MenuShortcut,
 } from "@/components/animate-ui/components/base/menu";
+import { getLists, createList, updateList, deleteList, type TaskList } from "@/lib/storage";
+import { ListNameEditor } from "@/components/list-name-editor";
+import * as React from "react";
 
-const navigation = [
-  {
-    title: "Inbox",
-    icon: Inbox,
-    isActive: true,
-  },
-  {
-    title: "All Tasks",
-    icon: ListTodo,
-    isActive: false,
-  },
-];
+interface AppSidebarProps {
+  selectedListId: string | null;
+  onSelectList: (listId: string) => void;
+  onListsChange: () => void;
+}
 
-export function AppSidebar() {
+export function AppSidebar({
+  selectedListId,
+  onSelectList,
+  onListsChange,
+}: AppSidebarProps) {
+  const [lists, setLists] = React.useState<TaskList[]>([]);
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [openMenuId, setOpenMenuId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    setLists(getLists());
+  }, []);
+
+  const handleCreateList = () => {
+    const newList = createList("New List");
+    setLists(getLists());
+    onSelectList(newList.id);
+    setEditingId(newList.id);
+    onListsChange();
+  };
+
+  const handleUpdateName = (id: string, name: string) => {
+    updateList(id, name);
+    setLists(getLists());
+    setEditingId(null);
+    onListsChange();
+  };
+
+  const handleDelete = (id: string) => {
+    if (lists.length <= 1) return; // Don't delete the last list
+    
+    deleteList(id);
+    const updated = getLists();
+    setLists(updated);
+    
+    if (selectedListId === id && updated.length > 0) {
+      onSelectList(updated[0].id);
+    }
+    onListsChange();
+  };
+
   return (
     <Sidebar variant="sidebar" collapsible="offcanvas">
       <SidebarHeader>
@@ -73,34 +108,76 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigation.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton isActive={item.isActive} tooltip={item.title}>
-                    <item.icon className="size-4" />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                  <Menu>
-                    <MenuTrigger
-                      render={
-                        <SidebarMenuAction showOnHover>
-                          <MoreHorizontal className="size-4" />
-                          <span className="sr-only">More options</span>
-                        </SidebarMenuAction>
-                      }
-                    />
-                    <MenuPanel className="w-40" side="right" align="start" sideOffset={8}>
-                      <MenuItem>
-                        <Pencil className="size-4" />
-                        Edit
-                      </MenuItem>
-                      <MenuItem variant="destructive">
-                        <Trash2 className="size-4" />
-                        Delete
-                      </MenuItem>
-                    </MenuPanel>
-                  </Menu>
-                </SidebarMenuItem>
-              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={handleCreateList}
+                  className="w-full"
+                >
+                  <Plus className="size-4" />
+                  <span>New List</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {lists.map((list) => {
+                const isInbox = list.name === "Inbox";
+                return (
+                  <SidebarMenuItem key={list.id}>
+                    {editingId === list.id ? (
+                      <div className="flex-1 w-full px-2">
+                        <ListNameEditor
+                          name={list.name}
+                          onSave={(name) => handleUpdateName(list.id, name)}
+                          onCancel={() => setEditingId(null)}
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <SidebarMenuButton
+                          isActive={selectedListId === list.id}
+                          onClick={() => onSelectList(list.id)}
+                          tooltip={list.name}
+                        >
+                          <ListTodo className="size-4" />
+                          <span>{list.name}</span>
+                        </SidebarMenuButton>
+                        {!isInbox && (
+                          <Menu
+                            open={openMenuId === list.id}
+                            onOpenChange={(open) => {
+                              setOpenMenuId(open ? list.id : null);
+                            }}
+                          >
+                            <MenuTrigger
+                              render={
+                                <SidebarMenuAction showOnHover>
+                                  <MoreHorizontal className="size-4" />
+                                  <span className="sr-only">More options</span>
+                                </SidebarMenuAction>
+                              }
+                            />
+                            <MenuPanel className="w-40" side="right" align="start" sideOffset={8}>
+                              <MenuItem
+                                variant="destructive"
+                                onClick={() => handleDelete(list.id)}
+                                disabled={lists.length <= 1}
+                              >
+                                <Trash2 className="size-4" />
+                                Delete
+                              </MenuItem>
+                            </MenuPanel>
+                          </Menu>
+                        )}
+                      </>
+                    )}
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
