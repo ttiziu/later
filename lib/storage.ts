@@ -124,6 +124,25 @@ export function deleteList(id: string): boolean {
   return true;
 }
 
+/**
+ * Delete all lists and todos, then create a fresh Inbox list
+ */
+export function deleteAllLists(): void {
+  // Clear all lists
+  saveLists([]);
+  
+  // Clear all todos
+  saveTodos([]);
+  
+  // Create a fresh default "Inbox" list
+  const defaultList: TaskList = {
+    id: generateId(),
+    name: "Inbox",
+    createdAt: Date.now(),
+  };
+  saveLists([defaultList]);
+}
+
 // ============================================================================
 // Todos Storage Operations
 // ============================================================================

@@ -36,7 +36,18 @@ import {
   MenuSeparator,
   MenuShortcut,
 } from "@/components/animate-ui/components/base/menu";
-import { getLists, createList, updateList, deleteList, type TaskList } from "@/lib/storage";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { getLists, createList, updateList, deleteList, deleteAllLists, type TaskList } from "@/lib/storage";
 import { ListNameEditor } from "@/components/list-name-editor";
 import * as React from "react";
 
@@ -54,6 +65,7 @@ export function AppSidebar({
   const [lists, setLists] = React.useState<TaskList[]>([]);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = React.useState<string | null>(null);
+  const [deleteAllDialogOpen, setDeleteAllDialogOpen] = React.useState(false);
 
   React.useEffect(() => {
     setLists(getLists());
@@ -87,6 +99,18 @@ export function AppSidebar({
     onListsChange();
   };
 
+  const handleDeleteAll = () => {
+    deleteAllLists();
+    const updated = getLists();
+    setLists(updated);
+    
+    if (updated.length > 0) {
+      onSelectList(updated[0].id);
+    }
+    onListsChange();
+    setDeleteAllDialogOpen(false);
+  };
+
   return (
     <Sidebar variant="sidebar" collapsible="offcanvas">
       <SidebarHeader>
@@ -104,83 +128,85 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={handleCreateList}
-                  className="w-full"
-                >
-                  <Plus className="size-4" />
-                  <span>New List</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="overflow-hidden">
+        <ScrollArea className="h-full">
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={handleCreateList}
+                    className="w-full"
+                  >
+                    <Plus className="size-4" />
+                    <span>New List</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {lists.map((list) => {
-                const isInbox = list.name === "Inbox";
-                return (
-                  <SidebarMenuItem key={list.id}>
-                    {editingId === list.id ? (
-                      <div className="flex-1 w-full px-2">
-                        <ListNameEditor
-                          name={list.name}
-                          onSave={(name) => handleUpdateName(list.id, name)}
-                          onCancel={() => setEditingId(null)}
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <SidebarMenuButton
-                          isActive={selectedListId === list.id}
-                          onClick={() => onSelectList(list.id)}
-                          tooltip={list.name}
-                        >
-                          <ListTodo className="size-4" />
-                          <span>{list.name}</span>
-                        </SidebarMenuButton>
-                        {!isInbox && (
-                          <Menu
-                            open={openMenuId === list.id}
-                            onOpenChange={(open) => {
-                              setOpenMenuId(open ? list.id : null);
-                            }}
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {lists.map((list) => {
+                  const isInbox = list.name === "Inbox";
+                  return (
+                    <SidebarMenuItem key={list.id}>
+                      {editingId === list.id ? (
+                        <div className="flex-1 w-full px-2">
+                          <ListNameEditor
+                            name={list.name}
+                            onSave={(name) => handleUpdateName(list.id, name)}
+                            onCancel={() => setEditingId(null)}
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <SidebarMenuButton
+                            isActive={selectedListId === list.id}
+                            onClick={() => onSelectList(list.id)}
+                            tooltip={list.name}
                           >
-                            <MenuTrigger
-                              render={
-                                <SidebarMenuAction showOnHover>
-                                  <MoreHorizontal className="size-4" />
-                                  <span className="sr-only">More options</span>
-                                </SidebarMenuAction>
-                              }
-                            />
-                            <MenuPanel className="w-40" side="right" align="start" sideOffset={8}>
-                              <MenuItem
-                                variant="destructive"
-                                onClick={() => handleDelete(list.id)}
-                                disabled={lists.length <= 1}
-                              >
-                                <Trash2 className="size-4" />
-                                Delete
-                              </MenuItem>
-                            </MenuPanel>
-                          </Menu>
-                        )}
-                      </>
-                    )}
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                            <ListTodo className="size-4" />
+                            <span>{list.name}</span>
+                          </SidebarMenuButton>
+                          {!isInbox && (
+                            <Menu
+                              open={openMenuId === list.id}
+                              onOpenChange={(open) => {
+                                setOpenMenuId(open ? list.id : null);
+                              }}
+                            >
+                              <MenuTrigger
+                                render={
+                                  <SidebarMenuAction showOnHover>
+                                    <MoreHorizontal className="size-4" />
+                                    <span className="sr-only">More options</span>
+                                  </SidebarMenuAction>
+                                }
+                              />
+                              <MenuPanel className="w-40" side="right" align="start" sideOffset={8}>
+                                <MenuItem
+                                  variant="destructive"
+                                  onClick={() => handleDelete(list.id)}
+                                  disabled={lists.length <= 1}
+                                >
+                                  <Trash2 className="size-4" />
+                                  Delete
+                                </MenuItem>
+                              </MenuPanel>
+                            </Menu>
+                          )}
+                        </>
+                      )}
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </ScrollArea>
       </SidebarContent>
 
       <SidebarFooter>
@@ -232,10 +258,12 @@ export function AppSidebar({
 
                 <MenuSeparator />
 
-                <MenuItem variant="destructive">
-                  <LogOut className="size-4" />
-                  Log out
-                  <MenuShortcut>⇧⌘Q</MenuShortcut>
+                <MenuItem 
+                  variant="destructive" 
+                  onClick={() => setDeleteAllDialogOpen(true)}
+                >
+                  <Trash2 className="size-4" />
+                  Delete all lists
                 </MenuItem>
               </MenuPanel>
             </Menu>
@@ -244,6 +272,26 @@ export function AppSidebar({
       </SidebarFooter>
 
       <SidebarRail />
+
+      <AlertDialog open={deleteAllDialogOpen} onOpenChange={setDeleteAllDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar todos los chats?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará todas las listas y todas las tareas. Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteAll}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar todo
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sidebar>
   );
 }
