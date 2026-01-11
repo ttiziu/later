@@ -3,3 +3,4 @@ export { Input } from "./input";
 export { Separator } from "./separator";
 export { Skeleton } from "./skeleton";
 export { ScrollArea, ScrollBar } from "./scroll-area";
+export { Text, textVariants } from "./text";

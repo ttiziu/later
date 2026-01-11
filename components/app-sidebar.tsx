@@ -47,6 +47,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Text } from "@/components/ui/text";
 import { getLists, createList, updateList, deleteList, deleteAllLists, type TaskList } from "@/lib/storage";
 import { ListNameEditor } from "@/components/list-name-editor";
 import * as React from "react";
@@ -120,9 +121,9 @@ export function AppSidebar({
               <div className="flex size-8 items-center justify-center rounded-md bg-foreground text-background">
                 <span className="text-sm font-bold">L</span>
               </div>
-              <span className="text-lg font-semibold tracking-tight">
+              <Text variant="shine" className="text-lg font-semibold tracking-tight">
                 Later
-              </span>
+              </Text>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
