@@ -5,6 +5,9 @@
 
 import type { Todo, TaskList } from "@/types";
 
+// Re-export types for convenience
+export type { Todo, TaskList };
+
 // ============================================================================
 // Constants
 // ============================================================================
