@@ -13,13 +13,15 @@ export function ListNameEditor({ name, onSave, onCancel }: ListNameEditorProps) 
   const [value, setValue] = React.useState(name);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const mountedTimeRef = React.useRef<number>(Date.now());
 
   React.useEffect(() => {
+    mountedTimeRef.current = Date.now();
     // Use setTimeout to ensure the component is fully mounted
     const timer = setTimeout(() => {
       inputRef.current?.focus();
       inputRef.current?.select();
-    }, 0);
+    }, 50);
     return () => clearTimeout(timer);
   }, []);
 
@@ -38,14 +40,22 @@ export function ListNameEditor({ name, onSave, onCancel }: ListNameEditorProps) 
   };
 
   const handleBlur = () => {
-    handleSubmit();
+    // Only process blur if component has been mounted for at least 300ms
+    // This prevents the blur from firing immediately after mount
+    const timeSinceMount = Date.now() - mountedTimeRef.current;
+    console.log("handleBlur called, timeSinceMount:", timeSinceMount);
+    if (timeSinceMount > 300) {
+      handleSubmit();
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
+      console.log("Escape pressed, calling onCancel");
       onCancel();
     } else if (e.key === "Enter") {
       e.preventDefault();
+      console.log("Enter pressed, calling handleSubmit");
       handleSubmit();
     }
   };
