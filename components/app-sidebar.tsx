@@ -11,6 +11,7 @@ import {
   Github,
   HelpCircle,
   Plus,
+  Pencil,
   ListTodo,
 } from "lucide-react";
 import {
@@ -87,6 +88,13 @@ export function AppSidebar({
     onListsChange();
   };
 
+  const handleRename = (id: string) => {
+    console.log("handleRename called with id:", id);
+    setOpenMenuId(null);
+    setEditingId(id);
+    console.log("editingId set to:", id);
+  };
+
   const handleDelete = (id: string) => {
     if (lists.length <= 1) return; // Don't delete the last list
     
@@ -152,14 +160,19 @@ export function AppSidebar({
               <SidebarMenu>
                 {lists.map((list) => {
                   const isInbox = list.name === "Inbox";
+                  const isEditing = editingId === list.id;
+                  console.log(`Rendering list ${list.name}, isEditing: ${isEditing}, editingId: ${editingId}`);
                   return (
                     <SidebarMenuItem key={list.id}>
-                      {editingId === list.id ? (
+                      {isEditing ? (
                         <div className="flex-1 w-full px-2">
                           <ListNameEditor
                             name={list.name}
                             onSave={(name) => handleUpdateName(list.id, name)}
-                            onCancel={() => setEditingId(null)}
+                            onCancel={() => {
+                              console.log("onCancel called for:", list.id);
+                              setEditingId(null);
+                            }}
                           />
                         </div>
                       ) : (
@@ -188,6 +201,15 @@ export function AppSidebar({
                                 }
                               />
                               <MenuPanel className="w-40" side="right" align="start" sideOffset={8}>
+                                <MenuItem
+                                  onClick={() => {
+                                    console.log("Rename clicked for:", list.id);
+                                    handleRename(list.id);
+                                  }}
+                                >
+                                  <Pencil className="size-4" />
+                                  Rename
+                                </MenuItem>
                                 <MenuItem
                                   variant="destructive"
                                   onClick={() => handleDelete(list.id)}
