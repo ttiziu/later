@@ -145,8 +145,9 @@ export function TaskList({
                     </div>
                   </div>
                   
-                  {/* Reorder buttons */}
-                  <div className="absolute right-10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                  {/* Action buttons */}
+                  <div className="absolute right-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                    {/* Reorder buttons */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -169,10 +170,8 @@ export function TaskList({
                     >
                       <ArrowDown className="size-3.5" />
                     </button>
-                  </div>
 
-                  {/* Context menu and delete button */}
-                  <div className="absolute right-0 flex items-center gap-1">
+                    {/* Context menu */}
                     <Menu
                       open={contextMenuOpen === item.id}
                       onOpenChange={(open) =>
@@ -190,7 +189,7 @@ export function TaskList({
                               e.preventDefault();
                               setContextMenuOpen(item.id);
                             }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md"
+                            className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md"
                             title="More options (right-click or click)"
                           >
                             <Move className="size-4" />
@@ -198,8 +197,33 @@ export function TaskList({
                         }
                       />
                       <MenuPanel className="w-48 overflow-visible" side="right" align="start" sideOffset={8}>
+                        <MenuItem
+                          disabled={!canMoveUp}
+                          onClick={() => {
+                            if (canMoveUp) {
+                              onReorder(item.id, "up");
+                              setContextMenuOpen(null);
+                            }
+                          }}
+                        >
+                          <ArrowUp className="size-4" />
+                          Move up
+                        </MenuItem>
+                        <MenuItem
+                          disabled={!canMoveDown}
+                          onClick={() => {
+                            if (canMoveDown) {
+                              onReorder(item.id, "down");
+                              setContextMenuOpen(null);
+                            }
+                          }}
+                        >
+                          <ArrowDown className="size-4" />
+                          Move down
+                        </MenuItem>
                         {availableLists.length > 0 && (
                           <>
+                            <MenuSeparator />
                             <MenuSubmenu>
                               <MenuSubmenuTrigger>
                                 <Move className="size-4" />
@@ -224,9 +248,9 @@ export function TaskList({
                                 ))}
                               </MenuSubmenuPanel>
                             </MenuSubmenu>
-                            <MenuSeparator />
                           </>
                         )}
+                        <MenuSeparator />
                         <MenuItem
                           variant="destructive"
                           onClick={() => {
@@ -239,9 +263,11 @@ export function TaskList({
                         </MenuItem>
                       </MenuPanel>
                     </Menu>
+
+                    {/* Delete button */}
                     <button
                       onClick={() => onDelete(item.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-destructive hover:bg-destructive/10 rounded-md flex items-center justify-center"
+                      className="p-1.5 text-destructive hover:bg-destructive/10 rounded-md flex items-center justify-center"
                       title="Delete"
                     >
                       <X className="size-4" />
